@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                sh 'docker build -t prime-numbers .'
+            }
+        }
+        
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                    sh 'docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD'
+                    sh 'docker tag prime-numbers DOCKER_HUB_USERNAME/prime-numbers'
+                    sh 'docker push DOCKER_HUB_USERNAME/prime-numbers'
+                }
+            }
+        }
+    }
+}
